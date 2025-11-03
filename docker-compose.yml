@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  ms-gerenciamento:
+    build: ./gerenciamento
+    container_name: ms-gerenciamento
+    ports:
+      - "8001:5000"
+    networks:
+      - schoolnet
+
+  ms-reservas:
+    build: ./reservas
+    container_name: ms-reservas
+    ports:
+      - "8002:5002"
+    depends_on:
+      - ms-gerenciamento
+    environment:
+      - GERENCIAMENTO_URL=http://ms-gerenciamento:5000/api/turmas
+    networks:
+      - schoolnet
+
+  ms-atividades:
+    build: ./atividades
+    container_name: ms-atividades
+    ports:
+      - "8003:5003"
+    depends_on:
+      - ms-gerenciamento
+    environment:
+      - GERENCIAMENTO_URL=http://ms-gerenciamento:5000/api
+    networks:
+      - schoolnet
+
+networks:
+  schoolnet:
+    driver: bridge

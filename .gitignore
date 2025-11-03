@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+
+# Flask / Cache / Logs
+instance/
+*.log
+*.pot
+*.pyc
+*.db
+*.sqlite3
+*.sqlite
+*.pid
+*.coverage
+.coverage.*
+
+# Migrations
+migrations/
+alembic/
+*.bak
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Docker
+**/__pycache__/
+**/.pytest_cache/
+*.pid
+*.seed
+*.log
+*.pid
+*.sock
+
+# SQLite databases (one per service)
+gerenciamento/app/*.sqlite3
+reservas/app/*.sqlite3
+atividades/app/*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PyCharm
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.cache/
+pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.cache/
+nosetests.xml   
