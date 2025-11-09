@@ -10,11 +10,69 @@ GERENCIAMENTO_URL = os.getenv("GERENCIAMENTO_URL", "http://localhost:8001/api/tu
 
 @reserva_bp.route("/", methods=["GET"])
 def listar_reservas():
+    """
+    Lista todas as reservas
+    ---
+    tags:
+      - Reservas
+    responses:
+      200:
+        description: Lista de reservas
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              sala:
+                type: string
+              data_reserva:
+                type: string
+                format: date
+              turma_id:
+                type: integer
+    """
     reservas = Reserva.query.all()
     return jsonify([r.to_dict() for r in reservas])
 
 @reserva_bp.route("/<int:id>", methods=["GET"])
 def obter_reserva(id):
+    """
+    Obtém uma reserva pelo ID
+    ---
+    tags:
+      - Reservas
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        description: ID da reserva
+    responses:
+      200:
+        description: Reserva encontrada
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            sala:
+              type: string
+            data_reserva:
+              type: string
+              format: date
+            turma_id:
+              type: integer
+      404:
+        description: Reserva não encontrada
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+              example: Reserva não encontrada
+    """
     reserva = Reserva.query.get(id)
     if not reserva:
         return jsonify({"erro": "Reserva não encontrada"}), 404
@@ -22,6 +80,62 @@ def obter_reserva(id):
 
 @reserva_bp.route("/", methods=["POST"])
 def criar_reserva():
+    """
+    Cria uma nova reserva
+    ---
+    tags:
+      - Reservas
+    consumes:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        description: Dados da reserva a ser criada
+        schema:
+          type: object
+          required: [sala, data_reserva, turma_id]
+          properties:
+            sala:
+              type: string
+              example: LAB-101
+            data_reserva:
+              type: string
+              format: date
+              example: 2025-01-15
+            turma_id:
+              type: integer
+              example: 42
+    responses:
+      201:
+        description: Reserva criada com sucesso
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            sala:
+              type: string
+            data_reserva:
+              type: string
+              format: date
+            turma_id:
+              type: integer
+      400:
+        description: Requisição inválida ou turma não encontrada
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+      500:
+        description: Erro ao comunicar com o serviço de gerenciamento
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+    """
     data = request.get_json()
     if not data or "sala" not in data or "data_reserva" not in data or "turma_id" not in data:
         return jsonify({"erro": "Campos obrigatórios: sala, data_reserva, turma_id"}), 400
@@ -48,6 +162,73 @@ def criar_reserva():
 
 @reserva_bp.route("/<int:id>", methods=["PUT"])
 def atualizar_reserva(id):
+    """
+    Atualiza uma reserva existente
+    ---
+    tags:
+      - Reservas
+    consumes:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        description: ID da reserva
+      - in: body
+        name: body
+        required: true
+        description: Campos a serem atualizados
+        schema:
+          type: object
+          properties:
+            sala:
+              type: string
+              example: LAB-202
+            data_reserva:
+              type: string
+              format: date
+              example: 2025-02-20
+            turma_id:
+              type: integer
+              example: 77
+    responses:
+      200:
+        description: Reserva atualizada com sucesso
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+            sala:
+              type: string
+            data_reserva:
+              type: string
+              format: date
+            turma_id:
+              type: integer
+      400:
+        description: Requisição inválida ou turma não encontrada
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+      404:
+        description: Reserva não encontrada
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+      500:
+        description: Erro ao comunicar com o serviço de gerenciamento
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+    """
     reserva = Reserva.query.get(id)
     if not reserva:
         return jsonify({"erro": "Reserva não encontrada"}), 404
@@ -71,6 +252,34 @@ def atualizar_reserva(id):
 
 @reserva_bp.route("/<int:id>", methods=["DELETE"])
 def deletar_reserva(id):
+    """
+    Remove uma reserva pelo ID
+    ---
+    tags:
+      - Reservas
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        description: ID da reserva
+    responses:
+      200:
+        description: Reserva removida com sucesso
+        schema:
+          type: object
+          properties:
+            mensagem:
+              type: string
+              example: Reserva 1 removida com sucesso
+      404:
+        description: Reserva não encontrada
+        schema:
+          type: object
+          properties:
+            erro:
+              type: string
+    """
     reserva = Reserva.query.get(id)
     if not reserva:
         return jsonify({"erro": "Reserva não encontrada"}), 404

@@ -12,12 +12,102 @@ GERENCIAMENTO_URL = os.getenv("GERENCIAMENTO_URL", "http://localhost:8001/api")
 # 🔹 Listar todas as notas
 @nota_bp.route("/", methods=["GET"])
 def listar_notas():
+    """
+    Listar todas as notas
+    ---
+    tags:
+      - Notas
+    summary: Lista todas as notas
+    description: Retorna uma lista com todas as notas cadastradas.
+    responses:
+      200:
+        description: Lista de notas
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Nota'
+    definitions:
+      Nota:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          valor:
+            type: number
+            format: float
+            example: 8.5
+          aluno_id:
+            type: integer
+            example: 3
+          atividade_id:
+            type: integer
+            example: 10
+      NotaInput:
+        type: object
+        required:
+          - valor
+          - aluno_id
+          - atividade_id
+        properties:
+          valor:
+            type: number
+            format: float
+            example: 8.5
+          aluno_id:
+            type: integer
+            example: 3
+          atividade_id:
+            type: integer
+            example: 10
+      NotaUpdate:
+        type: object
+        properties:
+          valor:
+            type: number
+            format: float
+            example: 9.0
+      Error:
+        type: object
+        properties:
+          erro:
+            type: string
+            example: Nota não encontrada
+      Message:
+        type: object
+        properties:
+          mensagem:
+            type: string
+            example: Nota 1 removida com sucesso
+    """
     notas = Nota.query.all()
     return jsonify([n.to_dict() for n in notas]), 200
 
 # 🔹 Buscar nota por ID
 @nota_bp.route("/<int:id>", methods=["GET"])
 def obter_nota(id):
+    """
+    Buscar nota por ID
+    ---
+    tags:
+      - Notas
+    summary: Obtém uma nota pelo ID
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da nota
+    responses:
+      200:
+        description: Nota encontrada
+        schema:
+          $ref: '#/definitions/Nota'
+      404:
+        description: Nota não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     nota = Nota.query.get(id)
     if not nota:
         return jsonify({"erro": "Nota não encontrada"}), 404
@@ -25,6 +115,34 @@ def obter_nota(id):
 
 @nota_bp.route("/", methods=["POST"])
 def criar_nota():
+    """
+    Criar nova nota
+    ---
+    tags:
+      - Notas
+    summary: Cria uma nova nota
+    consumes:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/NotaInput'
+    responses:
+      201:
+        description: Nota criada com sucesso
+        schema:
+          $ref: '#/definitions/Nota'
+      400:
+        description: Validação falhou (campos obrigatórios/IDs inválidos)
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: Erro ao contatar serviço de gerenciamento
+        schema:
+          $ref: '#/definitions/Error'
+    """
     data = request.get_json()
     campos = ["valor", "aluno_id", "atividade_id"]
 
@@ -59,6 +177,33 @@ def criar_nota():
 # 🔹 Atualizar nota
 @nota_bp.route("/<int:id>", methods=["PUT"])
 def atualizar_nota(id):
+    """
+    Atualizar nota existente
+    ---
+    tags:
+      - Notas
+    summary: Atualiza os dados de uma nota
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da nota
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/NotaUpdate'
+    responses:
+      200:
+        description: Nota atualizada com sucesso
+        schema:
+          $ref: '#/definitions/Nota'
+      404:
+        description: Nota não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     nota = Nota.query.get(id)
     if not nota:
         return jsonify({"erro": "Nota não encontrada"}), 404
@@ -73,6 +218,28 @@ def atualizar_nota(id):
 # 🔹 Deletar nota
 @nota_bp.route("/<int:id>", methods=["DELETE"])
 def deletar_nota(id):
+    """
+    Deletar nota
+    ---
+    tags:
+      - Notas
+    summary: Remove uma nota pelo ID
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da nota
+    responses:
+      200:
+        description: Nota removida com sucesso
+        schema:
+          $ref: '#/definitions/Message'
+      404:
+        description: Nota não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     nota = Nota.query.get(id)
     if not nota:
         return jsonify({"erro": "Nota não encontrada"}), 404

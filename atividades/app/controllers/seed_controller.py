@@ -7,6 +7,72 @@ seed_bp = Blueprint("seed", __name__)
 
 @seed_bp.route("/seed", methods=["POST"])
 def seed_data():
+    """
+    Popular banco (atividades e notas)
+    ---
+    tags:
+      - Seed
+    summary: Reinicia o banco deste serviço e insere dados iniciais
+    description: |
+      DERRUBA e recria todas as tabelas do serviço de atividades, e
+      insere registros de exemplo para Atividades e Notas. Útil em desenvolvimento.
+    responses:
+      201:
+        description: Banco populado com sucesso
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Banco de atividades e notas populado!
+            atividades:
+              type: array
+              items:
+                $ref: '#/definitions/Atividade'
+            notas:
+              type: array
+              items:
+                $ref: '#/definitions/Nota'
+    definitions:
+      Atividade:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          titulo:
+            type: string
+            example: Prova de Matemática
+          descricao:
+            type: string
+            example: Geometria Espacial
+          nota:
+            type: number
+            format: float
+            example: 8.5
+          professor_id:
+            type: integer
+            example: 1
+          turma_id:
+            type: integer
+            example: 1
+      Nota:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          valor:
+            type: number
+            format: float
+            example: 9.5
+          aluno_id:
+            type: integer
+            example: 2
+          atividade_id:
+            type: integer
+            example: 1
+    """
     db.drop_all()
     db.create_all()
 

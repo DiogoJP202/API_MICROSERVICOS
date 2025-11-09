@@ -11,11 +11,119 @@ GERENCIAMENTO_URL = os.getenv("GERENCIAMENTO_URL", "http://localhost:8001/api")
 
 @atividade_bp.route("/", methods=["GET"])
 def listar_atividades():
+    """
+    Listar todas as atividades
+    ---
+    tags:
+      - Atividades
+    summary: Lista todas as atividades
+    description: Retorna uma lista com todas as atividades cadastradas.
+    responses:
+      200:
+        description: Lista de atividades
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Atividade'
+    definitions:
+      Atividade:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          titulo:
+            type: string
+            example: Trabalho 1
+          descricao:
+            type: string
+            example: Entregar até sexta
+          nota:
+            type: number
+            format: float
+            example: 9.5
+          professor_id:
+            type: integer
+            example: 2
+          turma_id:
+            type: integer
+            example: 1
+      AtividadeInput:
+        type: object
+        required:
+          - titulo
+          - professor_id
+          - turma_id
+        properties:
+          titulo:
+            type: string
+            example: Trabalho 1
+          descricao:
+            type: string
+            example: Entregar até sexta
+          nota:
+            type: number
+            format: float
+            example: 9.5
+          professor_id:
+            type: integer
+            example: 2
+          turma_id:
+            type: integer
+            example: 1
+      AtividadeUpdate:
+        type: object
+        properties:
+          titulo:
+            type: string
+            example: Trabalho 1 (revisto)
+          descricao:
+            type: string
+            example: Nova descrição
+          nota:
+            type: number
+            format: float
+            example: 8.0
+      Error:
+        type: object
+        properties:
+          erro:
+            type: string
+            example: Atividade não encontrada
+      Message:
+        type: object
+        properties:
+          mensagem:
+            type: string
+            example: Atividade 1 removida com sucesso
+    """
     atividades = Atividade.query.all()
     return jsonify([a.to_dict() for a in atividades])
 
 @atividade_bp.route("/<int:id>", methods=["GET"])
 def obter_atividade(id):
+    """
+    Buscar atividade por ID
+    ---
+    tags:
+      - Atividades
+    summary: Obtém uma atividade pelo ID
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da atividade
+    responses:
+      200:
+        description: Atividade encontrada
+        schema:
+          $ref: '#/definitions/Atividade'
+      404:
+        description: Atividade não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     atividade = Atividade.query.get(id)
     if not atividade:
         return jsonify({"erro": "Atividade não encontrada"}), 404
@@ -23,6 +131,34 @@ def obter_atividade(id):
 
 @atividade_bp.route("/", methods=["POST"])
 def criar_atividade():
+    """
+    Criar nova atividade
+    ---
+    tags:
+      - Atividades
+    summary: Cria uma nova atividade
+    consumes:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AtividadeInput'
+    responses:
+      201:
+        description: Atividade criada com sucesso
+        schema:
+          $ref: '#/definitions/Atividade'
+      400:
+        description: Validação falhou (campos obrigatórios ou IDs não encontrados)
+        schema:
+          $ref: '#/definitions/Error'
+      500:
+        description: Erro ao contatar serviço de gerenciamento
+        schema:
+          $ref: '#/definitions/Error'
+    """
     data = request.get_json()
     campos = ["titulo", "professor_id", "turma_id"]
     if not data or not all(c in data for c in campos):
@@ -61,6 +197,33 @@ def criar_atividade():
 
 @atividade_bp.route("/<int:id>", methods=["PUT"])
 def atualizar_atividade(id):
+    """
+    Atualizar atividade existente
+    ---
+    tags:
+      - Atividades
+    summary: Atualiza os dados de uma atividade
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da atividade
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AtividadeUpdate'
+    responses:
+      200:
+        description: Atividade atualizada com sucesso
+        schema:
+          $ref: '#/definitions/Atividade'
+      404:
+        description: Atividade não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     atividade = Atividade.query.get(id)
     if not atividade:
         return jsonify({"erro": "Atividade não encontrada"}), 404
@@ -78,6 +241,28 @@ def atualizar_atividade(id):
 
 @atividade_bp.route("/<int:id>", methods=["DELETE"])
 def deletar_atividade(id):
+    """
+    Deletar atividade
+    ---
+    tags:
+      - Atividades
+    summary: Remove uma atividade pelo ID
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID da atividade
+    responses:
+      200:
+        description: Atividade removida com sucesso
+        schema:
+          $ref: '#/definitions/Message'
+      404:
+        description: Atividade não encontrada
+        schema:
+          $ref: '#/definitions/Error'
+    """
     atividade = Atividade.query.get(id)
     if not atividade:
         return jsonify({"erro": "Atividade não encontrada"}), 404

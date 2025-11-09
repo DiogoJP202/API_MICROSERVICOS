@@ -8,6 +8,75 @@ seed_bp = Blueprint("seed", __name__)
 
 @seed_bp.route("/seed", methods=["POST"])
 def seed_data():
+    """
+    Popular banco com dados de exemplo
+    ---
+    tags:
+      - Seed
+    summary: Reinicia o banco e insere dados iniciais
+    description: |
+      DERRUBA e recria todas as tabelas e, em seguida,
+      insere dados de exemplo para Professores, Turmas e Alunos.
+      Útil para desenvolvimento.
+    responses:
+      201:
+        description: Banco populado com sucesso
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Banco populado com sucesso!
+            professores:
+              type: array
+              items:
+                $ref: '#/definitions/Professor'
+            turmas:
+              type: array
+              items:
+                $ref: '#/definitions/Turma'
+            alunos:
+              type: array
+              items:
+                $ref: '#/definitions/Aluno'
+    definitions:
+      Professor:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          nome:
+            type: string
+            example: Marcos Paulo
+          materia:
+            type: string
+            example: Matemática
+      Turma:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          nome:
+            type: string
+            example: 1A
+          professor_id:
+            type: integer
+            example: 1
+      Aluno:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          nome:
+            type: string
+            example: Carlos
+          turma_id:
+            type: integer
+            example: 1
+    """
     db.drop_all()
     db.create_all()
 
