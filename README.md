@@ -12,7 +12,7 @@
 Sistema acadêmico baseado em **microsserviços Flask** para:
 
 * **Gerenciamento**: Professores, Turmas e Alunos (fonte de verdade dos IDs).
-* **Reservas**: Reservas de salas (valida `turma_id` no Gerenciamento).
+* **Reservas**: Reservas de salas (faz a validação `turma_id` no Gerenciamento).
 * **Atividades**: Atividades e Notas (valida `professor_id` e `turma_id` no Gerenciamento; Notas validam `aluno_id` no Gerenciamento e `atividade_id` localmente).
 
 Cada serviço tem **banco próprio (SQLite)**, **CRUD REST**, **Swagger UI** e se comunica de forma **síncrona** com `requests`.
